@@ -1,0 +1,49 @@
+SYSTEM  = GeSe-bulk
+NWRITE  = 2 # This controls how much the output files will record
+
+## Ionic Relaxation:
+NSW     = 200 #number of steps, should be ~100-300
+NBLOCK  = 1
+KBLOCK  = 1
+POTIM   = 0.5
+TEBEG   = 300.0
+SMASS   = 0
+IBRION  = 2
+ISIF    = 3
+EDIFFG  = -0.005 # eV/atom, relaxation will stop if all forces are less than this. 
+	        # Needs to be negative. 0.005 is high accuracy, 0.02.
+#M_FIXLATVEC = 0 0 1  # fixed the z lattice (this case is a-direction because of the convention for the bulk structure)
+	             # Qian modified VASP so you can fix x, y, z unit cell length
+
+
+## Electronic Relaxation 1:
+PREC    = High #Precision should be either "High" or "Accurate"
+ISMEAR  = 0       # 0 for semiconductor,  1 or 2 for metals
+SIGMA   = 0.050000
+EDIFF   = 1e-06
+NELM    = 300
+ENCUT   = 400.000000
+
+## Spin and Orbital configuration
+# LSORBIT = T
+# LORBMOM = F
+# SAXIS   = 0 0 1
+# GGA_COMPAT  = F
+
+#LMAXMIX = 4
+LREAL   = A
+#
+## Electronic Relaxation 2:
+ALGO    = Fast
+ISTART  = 0    #  0:scratch, 1:WAVECAR(ecut), 2:WAVECAR(pw), 3:MD
+ICHARG  = 2    #  0:WAVECAR, 1:full scf(CHGCAR), 11:nscf(CHGCAR), 2: atom
+ISYM    = 2    # -1/0: off (AFM calculation),  1: on for USPP,  2: on for PAW
+LCHARG  = F    # This writes the CHGCAR and CHG files. Needed for band structure calcs
+#
+#NBANDS = 40
+#NEDOS  = 2001
+#LASPH   = T
+#
+#
+
+

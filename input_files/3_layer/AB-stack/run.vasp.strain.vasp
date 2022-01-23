@@ -1,0 +1,81 @@
+#!/bin/bash
+
+
+
+# Job Specifications 
+#-----------------------------------------------------
+# 
+#BSUB -L /bin/bash
+#BSUB -J GeSe_3L-AB
+#BSUB -n 4                      # number of cores to allocate for the job
+#BSUB -R "span[ptile=4]"
+#BSUB -R "rusage[mem=2500]"
+#BSUB -W  12:00                  # sets job's runtime wall-clock limit 
+#BSUB -u xiuyu@tamu.edu        # Your username 
+#BSUB -P 082753775485           # class account 
+
+module purge
+module load intel/2017A
+#module load ictce/7.1.2
+WORKDIR=`pwd`
+
+#-------------------job set up-----------------------------#
+cd ${WORKDIR}
+log=${WORKDIR}/job.txt
+echo "job start: "`date` > ${log}
+echo "work directory: "$WORKDIR >> $log
+topdir=`pwd`
+
+#-------------------user define-----------------------------#
+EXEC=/home/xiuyu/bin/vasp.5.4.4
+cp ~/bin/vdw_kernel.bindat .
+
+cp input/POSCAR .
+cp input/POTCAR .
+cp input/INCAR .
+cp input/KPOINTS .
+
+#rm WAVECAR result.txt
+for i in 0.000 0.0002 0.004 0.006 0.008 0.010 0.012 0.014 0.016 0.02 0.03 0.035  0.04 0.045 0.05 0.06 0.08 0.10 0.12 0.14 0.16 0.18 0.20; do
+a0=3.9231296593716198
+b0=4.4350867811036867
+c0=38.6418646600000031
+D=`echo $i+1.000 | bc`
+a=`echo $a0*$D | bc -l`
+b=`echo $b0*$D | bc -l`
+cat > POSCAR <<!
+GeSe-3L-AB
+    1.00000000000000  
+     $a    0.0000000000000000    0.0000000000000000
+     0.0000000000000000    $b    0.0000000000000000
+     0.0000000000000000    0.0000000000000000    $c0
+   Ge   Se
+     6     6
+Direct
+  0.2500000000000000  0.1103746285402091  0.3207946160515961
+  0.7500000000000000  0.8823170412077551  0.5355662284175214
+  0.2500000000000000  0.1132678231693880  0.6114888917219294
+  0.7500000000000000  0.6132678431693894  0.3885111282780651
+  0.2500000000000000  0.3823170112077598  0.4644337515824772
+  0.7500000000000000  0.6103746485402106  0.6792053839484037
+  0.7500000000000000  0.5061556347115269  0.3228464529153127
+  0.2500000000000000  0.4930412954572062  0.5301050084800224
+  0.7500000000000000  0.5078405469139192  0.6142181618111777
+  0.2500000000000000  0.0078405669139141  0.3857818381888226
+  0.7500000000000000  0.9930412754572112  0.4698950015199786
+  0.2500000000000000  0.0061556547115212  0.6771535370846866
+!
+mpirun $EXEC >> log.txt
+echo 'delta=' $i >> result.txt
+
+while IFS= read -r line; do
+  if [[ $line =~ 'in' && $line =~ 'kB' ]]; then
+     E=`echo $line`
+  fi
+done < OUTCAR
+
+echo $E >> result.txt
+
+done
+
+

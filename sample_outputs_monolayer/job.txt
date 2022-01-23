@@ -1,0 +1,2 @@
+job start: Fri Nov 27 23:20:44 CST 2020
+work directory: /home/xiuyu/job/MSEN670/final/monolayer/strain

@@ -1,0 +1,77 @@
+#!/bin/bash
+
+
+
+# Job Specifications 
+#-----------------------------------------------------
+# 
+#BSUB -L /bin/bash
+#BSUB -J GeSe_biL
+#BSUB -n 40                      # number of cores to allocate for the job
+#BSUB -R "span[ptile=4]"
+#BSUB -R "rusage[mem=2500]"
+#BSUB -W  12:00                  # sets job's runtime wall-clock limit 
+#BSUB -u xiuyu@tamu.edu        # Your username 
+#BSUB -P 082753775485           # class account 
+
+module purge
+module load intel/2017A
+#module load ictce/7.1.2
+WORKDIR=`pwd`
+
+#-------------------job set up-----------------------------#
+cd ${WORKDIR}
+log=${WORKDIR}/job.txt
+echo "job start: "`date` > ${log}
+echo "work directory: "$WORKDIR >> $log
+topdir=`pwd`
+
+#-------------------user define-----------------------------#
+EXEC=/home/xiuyu/bin/vasp.5.4.4
+cp ~/bin/vdw_kernel.bindat .
+
+cp input/POSCAR .
+cp input/POTCAR .
+cp input/INCAR .
+cp input/KPOINTS .
+
+rm WAVECAR result.txt
+for i in 0.000 0.002 0.004 0.006 0.008 0.010 0.012 0.014 0.016 0.018 0.02 0.025 0.03 0.035 0.04 0.045 0.05 0.06 0.08, 0.10, 0.12, 0.14, 0.16, 0.18, 0.20; do
+a0=3.9759917602351651
+b0=4.2402940640342157
+c0=33.3564430999999999
+D=`echo $i+1.000 | bc`
+a=`echo $a0*$D | bc -l`
+b=`echo $b0*$D | bc -l`
+cat > POSCAR <<!
+GeSe-biL-AA
+    1.00000000000000  
+     $a    0.0000000000000000    0.0000000000000000
+     0.0000000000000000    $b    0.0000000000000000
+     0.0000000000000000    0.0000000000000000    $c0
+   Ge   Se
+   4     4
+Direct
+  0.2500000000000000  0.1005379010061870  0.3753248836662691
+  0.7500000000000000  0.6005378810061853  0.6246751063337299
+  0.7500000000000000  0.5942624167632929  0.4490095370750301
+  0.2500000000000000  0.0942624367632947  0.5509904629249698
+  0.2500000000000000  0.0146894243200015  0.6279493314242884
+  0.7500000000000000  0.5146893943200064  0.3720506585757108
+  0.7500000000000000  0.5165042479105245  0.5481028325110160
+  0.2500000000000000  0.0165042779105200  0.4518971774889852
+!
+mpirun $EXEC >> log.txt
+echo 'delta=' $i >> result.txt
+
+while IFS= read -r line; do
+  if [[ $line =~ 'in' && $line =~ 'kB' ]]; then
+     E=`echo $line`
+  fi
+done < OUTCAR
+
+echo $E >> result.txt
+
+done
+
+

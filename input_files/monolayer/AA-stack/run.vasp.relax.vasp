@@ -1,0 +1,61 @@
+#!/bin/bash
+
+
+
+# Job Specifications 
+#-----------------------------------------------------
+# 
+#BSUB -L /bin/bash
+#BSUB -J GeSe_monL
+#BSUB -n 40                      # number of cores to allocate for the job
+#BSUB -R "span[ptile=4]"
+#BSUB -R "rusage[mem=2500]"
+#BSUB -W  4:00                  # sets job's runtime wall-clock limit 
+#BSUB -u xiuyu@tamu.edu        # Your username 
+#BSUB -P 082753775485           # class account 
+
+module purge
+module load intel/2017A
+#module load ictce/7.1.2
+WORKDIR=`pwd`
+
+#-------------------job set up-----------------------------#
+cd ${WORKDIR}
+log=${WORKDIR}/job.txt
+echo "job start: "`date` > ${log}
+echo "work directory: "$WORKDIR >> $log
+topdir=`pwd`
+
+#-------------------user define-----------------------------#
+EXEC=/home/xiuyu/bin/vasp.5.4.4
+EXEC_NC=/home/xiuyu/bin/vasp.5.3.3.std.nlo
+cp ~/bin/vdw_kernel.bindat .
+
+
+job="relax"
+
+if [ -f "input/INCAR_${job}" ]; then
+    cp input/INCAR_${job} INCAR
+else
+    cp input/INCAR .
+fi
+
+if  [ -f "input/KPOINTS_${job}" ]; then
+    cp input/KPOINTS_${job} KPOINTS
+else
+    cp input/KPOINTS .
+fi
+
+cp input/POTCAR .
+cp input/POSCAR .
+
+mpirun $EXEC >> log.txt
+
+if [ ${job}="relax" ]; then
+   cp input/POSCAR input/POSCAR_ini
+   cp CONTCAR input/POSCAR_relax
+   cp CONTCAR input/POSCAR
+fi
+
+echo "job end:   "`date` >> ${log}
+exit

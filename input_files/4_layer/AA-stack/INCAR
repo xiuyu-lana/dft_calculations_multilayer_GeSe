@@ -1,0 +1,63 @@
+SYSTEM  = GeSe-4L-AA
+NWRITE  = 2 # This controls how much the output files will record
+
+# for ionic relaxation
+NSW     = 200 #number of steps, should be ~100-300
+#NBLOCK  = 1
+#KBLOCK  = 1
+POTIM   = 0.5
+TEBEG   = 300.0
+#SMASS   = 0
+IBRION  = 2    # 1,2,3: different methods for ionic relaxation; -1: no update
+ISIF    = 2
+EDIFFG  = -0.005 #eV/atom, relaxation will stop if all forces are less than this. Needs to be negative. 0.005 is high accuracy, 0.02. 
+M_FIXLATVEC = 0 0 1     # Qian modified VASP so you can fix x, y, z unit cell length
+
+
+## Electronic Relaxation 1:
+PREC    = High #Precision should be either "High" or "Accurate"
+ISMEAR  = 1       # 0 for semiconductor,  1 or 2 for metals, start with 1 if unknown
+SIGMA   = 0.050000 # smearing factor : eV
+EDIFF   = 1e-06  # eV/whole unit cell; it is not ev/atom in other DFT packages; for large cells(>20), EDIFF = 1e-5; for samll ones, EDIFF = 1e-7
+NLM    = 300 # max number of electronic relaxation steps
+ENCUT   = 400.000000
+
+#for optical or nlo calculation
+#ICHARG  = 11
+#LOPTICS = .TRUE. #Only for optical calcs
+#LVEL = T #Only for optical calcs
+#CSHIFT = 0.05 
+
+## Spin and Orbital configuration:
+# LSORBIT = T   # whether spin-orbit coupling is taken into account.
+# LORBMOM = F   #specifies whether the orbital moments are written out or not
+# SAXIS   = 0 0 1
+# GGA_COMPAT  = F
+
+#LMAXMIX = 4  # 4 for  systems with elements with elements with d electrons; 6 for f elements
+LREAL   = A
+
+## Electronic Relaxation 2:
+ALGO    = Fast
+ISTART  = 0    #  0:scratch, 1:WAVECAR(ecut), 2:WAVECAR(pw), 3:MD
+ICHARG  = 2    #  0:WAVECAR, 1:full scf(CHGCAR), 11:nscf(CHGCAR),only for band structure calculation 2: atom
+ISYM    = 2    # -1/0: off (AFM calculation),  1: on for USPP,  2: on for PAW
+LCHARG  = F    # check if it will change the CHGCAR file after band calculation? This writes the CHGCAR and CHG files. Needed for band structure calcs
+LWAVE   = F    # This writes the WAVECAR file. What is this used for?
+#LELF    = F    # Electron localizition function This writes the ELFCAR file. 
+#LVTOT   = F    # This writes the LOCPOT file. 
+#LAECHG  = F    # This makes the all-electron density be reconstructed explicitly and written out to some file. 
+
+# ## VASP2WANNIER90
+# LWANNIER90     = T
+# LWRITE_MMN_AMN = T
+# LWRITE_UNK     = F
+# NBANDS         = 80     # 2 * nbands of collinear run
+#NBANDS = 40     # bigger than number of valence electrons, depends on calculation 
+#NEDOS  = 2001
+#EMIN = -10
+#EMAX = 10
+#LASPH   = T
+#LORBIT = 11
+
+
